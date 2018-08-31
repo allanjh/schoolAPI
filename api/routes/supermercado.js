@@ -15,4 +15,14 @@ module.exports = function (app) {
     app.post('/api/supermercado', function (req, res) {
         app.api.controllers.supermercado.insertSupermercado(app, req, res);
     });
+
+    //Rota para atualizar o cadastro de um supermercado pelo id
+    app.put('/api/supermercado/:id', function (req, res) {
+        app.api.controllers.supermercado.updateSupermercado(app, req, res);
+    });
+
+    //Rota para deletar o cadastro de um supermercado pelo id
+    app.delete('/api/supermercado/:id', function (req, res) {
+        app.api.controllers.supermercado.deleteSupermercado(app, req, res);
+    });
 }
