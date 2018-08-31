@@ -22,6 +22,11 @@ module.exports = function (app) {
         app.api.controllers.promocao.insertPromocao(app, req, res);
     });
 
+    //Rota para incluir um produto em uma promoção
+    app.post('/api/promocao/produto', function (req, res) {
+        app.api.controllers.promocao.insertPromocao(app, req, res);
+    });
+
     //Rota para atualizar o registro de uma promoção pelo id
     app.put('/api/promocao/:id', function (req, res) {
         app.api.controllers.promocao.updatePromocao(app, req, res);

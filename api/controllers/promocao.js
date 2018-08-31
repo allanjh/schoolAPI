@@ -76,6 +76,9 @@ module.exports.getPromocoesDoSupermercado = function (app, req, res) {
 //Exporta a função que insere uma nova promoção no banco de dados
 module.exports.insertPromocao = function (app, req, res) {
 
+    //Importa módulo moment para trabalhar com as datas
+    var moment = require('moment');
+
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
     // Instancia o objeto PromocaoDAO e passa a conexão por parametro para ele
@@ -85,19 +88,13 @@ module.exports.insertPromocao = function (app, req, res) {
     var novaPromocao = req.body;
 
     // Verifica as informações passadas
-    req.assert('nome_supermercado', 'Nome do supermercado é obrigatório').notEmpty();
-    req.assert('nome_supermercado', 'Nome do supermercado deve conter no mínimo 3 e no máximo 45 caracteres').len(3, 45);
-    req.assert('rua_supermercado', 'o campo rua do supermercado é obrigatório').notEmpty();
-    req.assert('rua_supermercado', 'o campo rua do supermercado deve conter no mínimo 5 caracteres').len(5, 120);
-    req.assert('bairro_supermercado', 'o campo bairro do supermercado é obrigatório').notEmpty();
-    req.assert('bairro_supermercado', 'o campo bairro do supermercado deve conter no mínimo 2 caracteres').len(2, 45);
-    req.assert('cep_supermercado', 'o campo cep do supermercado é obrigatório').notEmpty();
-    req.assert('cep_supermercado', 'o campo cep do supermercado deve conter no mínimo 8 caracteres').len(8, 9);
-    req.assert('cidade_supermercado', 'o campo cidade do supermercado é obrigatório').notEmpty();
-    req.assert('cidade_supermercado', 'o campo cidade do supermercado deve conter no mínimo 2 caracteres').len(2, 45);
-    req.assert('estado_supermercado', 'o campo estado do supermercado é obrigatório').notEmpty();
-    req.assert('estado_supermercado', 'o campo estado do supermercado deve conter no mínimo 3 caracteres').len(3, 45);
+    req.assert('idsupermercado', 'ID do supermercado é obrigatório').notEmpty();
+    req.assert('idsupermercado', 'ID do supermercado deve ser um Número').isInt();
+    req.assert('data_inicio_promocao', 'o campo data inicio promoção é obrigatório').notEmpty();
+    req.assert('data_fim_promocao', 'o campo data fim promoção é obrigatório').notEmpty();
 
+    //Faz
+    
     // Faz a verificação e passa os resultados da mesma para a variável erros
     var erros = req.validationErrors();
 
@@ -109,7 +106,7 @@ module.exports.insertPromocao = function (app, req, res) {
         return;
     }
 
-    // Acessa o método de inserir um novo Supermercado esperando o retorno de um possível
+    // Acessa o método de inserir uma nova promoção esperando o retorno de um possível
     // erro ou resultado da inserção
     promocoes.insertPromocao(novaPromocao, function (error, result) {
         if (error) {
