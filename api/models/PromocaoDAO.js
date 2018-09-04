@@ -41,8 +41,8 @@ PromocaoDAO.prototype.insertPromocao = function(novaPromocao, callback){
     this._connection.query('INSERT INTO promocao SET ? ', novaPromocao, callback);
 }
 
-PromocaoDAO.prototype.updatePromocao = function(promocao, callback){
-    this._connection.query('UPDATE promocao SET ? WHERE idpromocao = ? ', promocao, callback);
+PromocaoDAO.prototype.updatePromocao = function(novaPromocao, callback){
+    this._connection.query('UPDATE promocao SET ? WHERE idpromocao = ? ', novaPromocao, callback);
 }
 
 PromocaoDAO.prototype.deletePromocao = function(idPromocao, callback){

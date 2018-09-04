@@ -141,6 +141,8 @@ module.exports.updatePromocao = function (app, req, res) {
 
     // Recupera os dados enviados via POST
     var novaPromocao = req.body;
+    // Recupera o parametro do id da promocao
+    var idpromocao = req.params.id;
 
     // Verifica as informações passadas
     req.assert('idsupermercado', 'ID do supermercado é obrigatório').notEmpty();
@@ -176,7 +178,7 @@ module.exports.updatePromocao = function (app, req, res) {
 
     // Acessa o método de inserir uma nova promoção esperando o retorno de um possível
     // erro ou resultado da inserção
-    promocoes.updatePromocao(novaPromocao, function (error, result) {
+    promocoes.updatePromocao([novaPromocao, idpromocao], function (error, result) {
         if (error) {
             res.status(400).json(error);
         } else {
@@ -189,15 +191,15 @@ module.exports.updatePromocao = function (app, req, res) {
 module.exports.deletePromocao = function (app, req, res) {
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
-    // Instancia o objeto SupermercadoDAO e passa a conexão por parametro para ele
-    var supermercados = new app.api.models.SupermercadoDAO(connection);
+    // Instancia o objeto PromocaoDAO e passa a conexão por parametro para ele
+    var promocoes = new app.api.models.PromocaoDAO(connection);
 
-    // Recupera o id do Supermercado
-    var idSupermercado = req.params.id;
+    // Recupera o id da Promoção
+    var idPromocao = req.params.id;
 
-    // Acessa o método de deletar o registro de um Supermercado, esperando o retorno de um possível
+    // Acessa o método de deletar o registro de uma Promoção, esperando o retorno de um possível
     // erro ou resultado do delete
-    supermercados.deleteSupermercado(idSupermercado, function (error, result) {
+    promocoes.deletePromocao(idPromocao, function (error, result) {
         if (error) {
             res.status(400).json(error);
         } else {
