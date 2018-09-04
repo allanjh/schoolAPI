@@ -21,6 +21,7 @@ app.use(expressValidator());
 */
 consign()
 	.include('api/routes')
+	.then('api/helpers')
 	.then('config/dbConnection.js')
 	.then('api/models')
 	.then('api/controllers')

@@ -64,7 +64,7 @@ module.exports.getPromocoesDoSupermercado = function (app, req, res) {
         if (error) {
             res.status(400).json(error);
         } else {
-            if(result == ''){
+            if (result == '') {
                 res.status(404).json(result);
             } else {
                 res.json(result);
@@ -76,11 +76,10 @@ module.exports.getPromocoesDoSupermercado = function (app, req, res) {
 //Exporta a função que insere uma nova promoção no banco de dados
 module.exports.insertPromocao = function (app, req, res) {
 
-    //Importa módulo moment para trabalhar com as datas
-    var moment = require('moment');
-
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
+    // Instancia objeto DataHelper para trabalhar com datas
+    var dataHelper = new app.api.helpers.DataHelper();
     // Instancia o objeto PromocaoDAO e passa a conexão por parametro para ele
     var promocoes = new app.api.models.PromocaoDAO(connection);
 
@@ -93,18 +92,32 @@ module.exports.insertPromocao = function (app, req, res) {
     req.assert('data_inicio_promocao', 'o campo data inicio promoção é obrigatório').notEmpty();
     req.assert('data_fim_promocao', 'o campo data fim promoção é obrigatório').notEmpty();
 
-    //TODO: fazer verificação das datas de promoções
-    
-    // Faz a verificação e passa os resultados da mesma para a variável erros
-    var erros = req.validationErrors();
+    // Faz a verificação das datas utilizando o DataHelper e passa os resultados da mesma para o array variaveis
+    var dataInicioEValida = dataHelper.isDataValida(novaPromocao.data_inicio_promocao, "o campo data inicio promoção deve ser YYYY-MM-DD HH:MM:SS");
+    var dataFimEValida = dataHelper.isDataValida(novaPromocao.data_fim_promocao, "o campo data fim promoção deve ser YYYY-MM-DD HH:MM:SS");
+    var dataMaiorQueHoje = dataHelper.isDataMaiorQueHoje(novaPromocao.data_fim_promocao, "o campo data fim promoção deve ser maior que hoje!");
+    var dataInicioMenorQueFim = dataHelper.isDataMaiorQue(novaPromocao.data_inicio_promocao, novaPromocao.data_fim_promocao, "o campo data fim promoção deve ser maior que o de data Inicio!");
+
+    // inicializa o array com as variaveis de erros;
+    var variaveis = [dataFimEValida, dataInicioEValida, dataMaiorQueHoje, dataInicioMenorQueFim, req.validationErrors()];
+    var erros = [];
+
+    //Faz a verificação se houve algum erro
+    for (var i = 0; i < variaveis.length; i++) {
+        if (variaveis[i]) {
+            erros.push(variaveis[i]);
+        }
+    }
 
     // Se houver erros 
-    if (erros) {
+    if (erros.length > 0) {
+        console.log('Dentro do erros');
         // responde a requisição retornando os erros que ocorreram
         res.status(400).json(erros);
         // para o fluxo do código
         return;
     }
+
 
     // Acessa o método de inserir uma nova promoção esperando o retorno de um possível
     // erro ou resultado da inserção
@@ -121,44 +134,52 @@ module.exports.insertPromocao = function (app, req, res) {
 module.exports.updatePromocao = function (app, req, res) {
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
-    // Instancia o objeto SupermercadoDAO e passa a conexão por parametro para ele
-    var supermercados = new app.api.models.SupermercadoDAO(connection);
+    // Instancia objeto DataHelper para trabalhar com datas
+    var dataHelper = new app.api.helpers.DataHelper();
+    // Instancia o objeto PromocaoDAO e passa a conexão por parametro para ele
+    var promocoes = new app.api.models.PromocaoDAO(connection);
 
-    // Recupera o id do Supermercado
-    var idSupermercado = req.params.id;
-    // Recupera os dados enviados via PUT
-    var novoSupermercado = req.body;
+    // Recupera os dados enviados via POST
+    var novaPromocao = req.body;
 
     // Verifica as informações passadas
-    req.assert('nome_supermercado', 'Nome do supermercado é obrigatório').notEmpty();
-    req.assert('nome_supermercado', 'Nome do supermercado deve conter no mínimo 3 e no máximo 45 caracteres').len(3, 45);
-    req.assert('rua_supermercado', 'o campo rua do supermercado é obrigatório').notEmpty();
-    req.assert('rua_supermercado', 'o campo rua do supermercado deve conter no mínimo 5 caracteres').len(5, 120);
-    req.assert('bairro_supermercado', 'o campo bairro do supermercado é obrigatório').notEmpty();
-    req.assert('bairro_supermercado', 'o campo bairro do supermercado deve conter no mínimo 2 caracteres').len(2, 45);
-    req.assert('cep_supermercado', 'o campo cep do supermercado é obrigatório').notEmpty();
-    req.assert('cep_supermercado', 'o campo cep do supermercado deve conter no mínimo 8 caracteres').len(8, 9);
-    req.assert('cidade_supermercado', 'o campo cidade do supermercado é obrigatório').notEmpty();
-    req.assert('cidade_supermercado', 'o campo cidade do supermercado deve conter no mínimo 2 caracteres').len(2, 45);
-    req.assert('estado_supermercado', 'o campo estado do supermercado é obrigatório').notEmpty();
-    req.assert('estado_supermercado', 'o campo estado do supermercado deve conter no mínimo 3 caracteres').len(3, 45);
+    req.assert('idsupermercado', 'ID do supermercado é obrigatório').notEmpty();
+    req.assert('idsupermercado', 'ID do supermercado deve ser um Número').isInt();
+    req.assert('data_inicio_promocao', 'o campo data inicio promoção é obrigatório').notEmpty();
+    req.assert('data_fim_promocao', 'o campo data fim promoção é obrigatório').notEmpty();
 
-    // Faz a verificação e passa os resultados da mesma para a variável erros
-    var erros = req.validationErrors();
+    // Faz a verificação das datas utilizando o DataHelper e passa os resultados da mesma para o array variaveis
+    var dataInicioEValida = dataHelper.isDataValida(novaPromocao.data_inicio_promocao, "o campo data inicio promoção deve ser YYYY-MM-DD HH:MM:SS");
+    var dataFimEValida = dataHelper.isDataValida(novaPromocao.data_fim_promocao, "o campo data fim promoção deve ser YYYY-MM-DD HH:MM:SS");
+    var dataMaiorQueHoje = dataHelper.isDataMaiorQueHoje(novaPromocao.data_fim_promocao, "o campo data fim promoção deve ser maior que hoje!");
+    var dataInicioMenorQueFim = dataHelper.isDataMaiorQue(novaPromocao.data_inicio_promocao, novaPromocao.data_fim_promocao, "o campo data fim promoção deve ser maior que o de data Inicio!");
+
+    // inicializa o array com as variaveis de erros;
+    var variaveis = [dataFimEValida, dataInicioEValida, dataMaiorQueHoje, dataInicioMenorQueFim, req.validationErrors()];
+    var erros = [];
+
+    //Faz a verificação se houve algum erro
+    for (var i = 0; i < variaveis.length; i++) {
+        if (variaveis[i]) {
+            erros.push(variaveis[i]);
+        }
+    }
 
     // Se houver erros 
-    if (erros) {
+    if (erros.length > 0) {
+        console.log('Dentro do erros');
         // responde a requisição retornando os erros que ocorreram
         res.status(400).json(erros);
         // para o fluxo do código
         return;
     }
 
-    // Acessa o método de atualizar o registro do Supermercado, esperando o retorno de um possível
-    // erro ou resultado da atualização
-    supermercados.updateSupermercado([novoSupermercado, idSupermercado], function (error, result) {
+
+    // Acessa o método de inserir uma nova promoção esperando o retorno de um possível
+    // erro ou resultado da inserção
+    promocoes.updatePromocao(novaPromocao, function (error, result) {
         if (error) {
-            res.status(304).json(error);
+            res.status(400).json(error);
         } else {
             res.json(result);
         }
