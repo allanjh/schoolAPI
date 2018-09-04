@@ -93,7 +93,7 @@ module.exports.insertPromocao = function (app, req, res) {
     req.assert('data_inicio_promocao', 'o campo data inicio promoção é obrigatório').notEmpty();
     req.assert('data_fim_promocao', 'o campo data fim promoção é obrigatório').notEmpty();
 
-    //Faz
+    //TODO: fazer verificação das datas de promoções
     
     // Faz a verificação e passa os resultados da mesma para a variável erros
     var erros = req.validationErrors();
