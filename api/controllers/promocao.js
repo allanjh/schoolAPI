@@ -167,7 +167,6 @@ module.exports.updatePromocao = function (app, req, res) {
 
     // Se houver erros 
     if (erros.length > 0) {
-        console.log('Dentro do erros');
         // responde a requisição retornando os erros que ocorreram
         res.status(400).json(erros);
         // para o fluxo do código
