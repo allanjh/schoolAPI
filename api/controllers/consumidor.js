@@ -23,18 +23,23 @@ module.exports.getConsumidor = function (app, req, res) {
 
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
-    // Instancia o objeto SupermercadoDAO e passa a conexão por parametro para ele
-    var supermercados = new app.api.models.SupermercadoDAO(connection);
+    // Instancia o objeto ConsumidorDAO e passa a conexão por parametro para ele
+    var consumidores = new app.api.models.ConsumidorDAO(connection);
     // Recupera o id passado como parametro
-    var idSupermercado = req.params.id;
+    var idConsumidor = req.params.id;
 
-    // Acessa o método de recuperar um Supermercado através do id, esperando o retorno de um possível
+    // Acessa o método de recuperar um Consumidor através do id, esperando o retorno de um possível
     // erro ou resultado do select
-    supermercados.getSupermercado(idSupermercado, function (error, result) {
+    consumidores.getConsumidor(idConsumidor, function (error, result) {
         if (error) {
             res.status(404).json(error);
         } else {
-            res.json(result);
+            if (result == '') {
+                result = {error: "Consumidor nao encontrado!"};
+                res.status(404).json(result);
+            } else {
+                res.json(result);
+            }
         }
     });
 }
@@ -47,28 +52,12 @@ module.exports.insertConsumidor = function (app, req, res) {
     // Instancia o objeto ConsumidorDAO e passa a conexão por parametro para ele
     var consumidores = new app.api.models.ConsumidorDAO(connection);
 
-    // Recupera os dados enviados via POST
-    var novoConsumidor = req.body;
+    //Cria um consumidor vazio
+    novoConsumidor = {'email_consumidor': '', 'senha_consumidor': '', 'nome_consumidor': ''};
 
-    // Verifica as informações passadas
-    if (novoConsumidor) {
-        req.assert('nome_', 'Nome do supermercado é obrigatório').notEmpty();
-
-        // Faz a verificação e passa os resultados da mesma para a variável erros
-        var erros = req.validationErrors();
-
-        // Se houver erros 
-        if (erros) {
-            // responde a requisição retornando os erros que ocorreram
-            res.status(400).json(erros);
-            // para o fluxo do código
-            return;
-        }
-    }
-
-    // Acessa o método de inserir um novo Supermercado esperando o retorno de um possível
+    // Acessa o método de inserir um novo Consumidor esperando o retorno de um possível
     // erro ou resultado da inserção
-    supermercados.insertSupermercado(novoSupermercado, function (error, result) {
+    consumidores.insertConsumidor(novoConsumidor, function (error, result) {
         if (error) {
             res.status(400).json(error);
         } else {
@@ -79,15 +68,54 @@ module.exports.insertConsumidor = function (app, req, res) {
 
 //Exporta a função de que atualiza o cadastro de um consumidor de acordo com o id
 module.exports.updateConsumidor = function (app, req, res) {
+    
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
-    // Instancia o objeto SupermercadoDAO e passa a conexão por parametro para ele
-    var supermercados = new app.api.models.SupermercadoDAO(connection);
+    // Instancia o objeto ConsumidorDAO e passa a conexão por parametro para ele
+    var consumidores = new app.api.models.ConsumidorDAO(connection);
 
-    // Recupera o id do Supermercado
-    var idSupermercado = req.params.id;
+    // Recupera o id do Consumidor
+    var idConsumidor = req.params.id;
     // Recupera os dados enviados via PUT
-    var novoSupermercado = req.body;
+    var novoConsumidor = req.body;
+
+    // Verifica as informações passadas
+    req.assert('email_consumidor', 'email do consumidor é obrigatório').notEmpty();
+    req.assert('email_consumidor', 'O email nao é válido').isEmail();
+    
+    // Faz a verificação e passa os resultados da mesma para a variável erros
+    var erros = req.validationErrors();
+
+    // Se houver erros 
+    if (erros) {
+        // responde a requisição retornando os erros que ocorreram
+        res.status(400).json(erros);
+        // para o fluxo do código
+        return;
+    }
+
+    // Acessa o método de atualizar o registro do Supermercado, esperando o retorno de um possível
+    // erro ou resultado da atualização
+    consumidores.updateConsumidor([novoConsumidor, idConsumidor], function (error, result) {
+        if (error) {
+            res.status(304).json(error);
+        } else {
+            res.json(result);
+        }
+    });
+}
+
+//Exporta a função de que insere a localização de um consumidor de acordo com o id
+module.exports.insereLocalizacaoConsumidor = function (app, req, res) {
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto ConsumidorDAO e passa a conexão por parametro para ele
+    var consumidores = new app.api.models.ConsumidorDAO(connection);
+
+    // Recupera o id do Consumidor
+    var idConsumidor = req.params.id;
+    // Recupera os dados enviados via POST
+    var localizacaoConsumidor = req.body;
 
     // Verifica as informações passadas
     req.assert('nome_supermercado', 'Nome do supermercado é obrigatório').notEmpty();
@@ -114,9 +142,9 @@ module.exports.updateConsumidor = function (app, req, res) {
         return;
     }
 
-    // Acessa o método de atualizar o registro do Supermercado, esperando o retorno de um possível
-    // erro ou resultado da atualização
-    supermercados.updateSupermercado([novoSupermercado, idSupermercado], function (error, result) {
+    // Acessa o método de atualizar o registro do Consumidor, esperando o retorno de um possível
+    // erro ou resultado do insert
+    consumidores.insereLocalizacaoConsumidor([novoSupermercado, idSupermercado], function (error, result) {
         if (error) {
             res.status(304).json(error);
         } else {
@@ -127,17 +155,18 @@ module.exports.updateConsumidor = function (app, req, res) {
 
 //Exporta a função que deleta o cadastro de um consumidor de acordo com o id
 module.exports.deleteConsumidor = function (app, req, res) {
+    
     // Estabelece a conexão com o banco de dados
     var connection = app.config.dbConnection();
-    // Instancia o objeto SupermercadoDAO e passa a conexão por parametro para ele
-    var supermercados = new app.api.models.SupermercadoDAO(connection);
+    // Instancia o objeto ConsumidorDAO e passa a conexão por parametro para ele
+    var consumidores = new app.api.models.ConsumidorDAO(connection);
 
-    // Recupera o id do Supermercado
-    var idSupermercado = req.params.id;
+    // Recupera o id do Consumidor
+    var idConsumidor = req.params.id;
 
-    // Acessa o método de deletar o registro de um Supermercado, esperando o retorno de um possível
+    // Acessa o método de deletar o registro de um Consumidor, esperando o retorno de um possível
     // erro ou resultado do delete
-    supermercados.deleteSupermercado(idSupermercado, function (error, result) {
+    consumidores.deleteConsumidor(idConsumidor, function (error, result) {
         if (error) {
             res.status(400).json(error);
         } else {

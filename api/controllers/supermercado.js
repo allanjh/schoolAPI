@@ -34,7 +34,12 @@ module.exports.getSupermercado = function (app, req, res) {
         if (error) {
             res.status(404).json(error);
         } else {
-            res.json(result);
+            if (result == '') {
+                result = {error: "Supermercado nao encontrado!"};
+                res.status(404).json(result);
+            } else {
+                res.json(result);
+            }
         }
     });
 }

@@ -6,20 +6,24 @@ ConsumidorDAO.prototype.getConsumidores = function(callback){
     this._connection.query('SELECT * FROM consumidor', callback);
 }
 
-ConsumidorDAO.prototype.getConsumidor = function(idSupermercado, callback){
-    this._connection.query('SELECT * FROM supermercado WHERE idsupermercado = ? ', idSupermercado, callback);
+ConsumidorDAO.prototype.getConsumidor = function(idConsumidor, callback){
+    this._connection.query('SELECT * FROM consumidor WHERE idconsumidor = ? ', idConsumidor, callback);
 }
 
-ConsumidorDAO.prototype.updateConsumidor = function(supermercado, callback){
-    this._connection.query('UPDATE supermercado SET ? WHERE idsupermercado = ? ', supermercado, callback);
+ConsumidorDAO.prototype.updateConsumidor = function(consumidor, callback){
+    this._connection.query('UPDATE consumidor SET ? WHERE idconsumidor = ? ', consumidor, callback);
 }
 
-ConsumidorDAO.prototype.insertConsumidor = function(novoSupermercado, callback){
-    this._connection.query('INSERT INTO supermercado SET ? ', novoSupermercado, callback);
+ConsumidorDAO.prototype.insereLocalizacaoConsumidor = function(localizacaoConsumidor, callback){
+    this._connection.query('INSERT INTO localizacao SET ? ', localizacaoConsumidor, callback);
 }
 
-ConsumidorDAO.prototype.deleteConsumidor = function(idSupermercado, callback){
-    this._connection.query('DELETE FROM supermercado WHERE idsupermercado =  ? ', idSupermercado, callback);
+ConsumidorDAO.prototype.insertConsumidor = function(novoConsumidor, callback){
+    this._connection.query('INSERT INTO consumidor SET ? ', novoConsumidor, callback);
+}
+
+ConsumidorDAO.prototype.deleteConsumidor = function(idConsumidor, callback){
+    this._connection.query('DELETE FROM consumidor WHERE idconsumidor =  ? ', idConsumidor, callback);
 }
 
 module.exports = function(){

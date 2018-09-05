@@ -16,9 +16,14 @@ module.exports = function (app) {
         app.api.controllers.consumidor.insertConsumidor(app, req, res);
     });
 
-    //Rota para atualizar o cadastro de um usuario pelo id
+    //Rota para atualizar o cadastro de um consumidor pelo id
     app.put('/api/consumidor/:id', function (req, res) {
         app.api.controllers.consumidor.updateConsumidor(app, req, res);
+    });
+
+    //Rota para adicionar a localização de um consumidor pelo id
+    app.post('/api/consumidor/localizacao/:id', function (req, res) {
+        app.api.controllers.consumidor.insereLocalizacaoConsumidor(app, req, res);
     });
 
     //Rota para deletar o cadastro de um consumidor pelo id

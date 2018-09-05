@@ -39,6 +39,7 @@ module.exports.getPromocao = function (app, req, res) {
             res.status(400).json(error);
         } else {
             if (result == '') {
+                result = {error: "Promoção nao encontrada!"};
                 res.status(404).json(result);
             } else {
                 res.json(result);
