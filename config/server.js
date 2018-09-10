@@ -2,6 +2,7 @@
 var express = require('express');
 var consign = require('consign');
 var bodyParser = require('body-parser');
+var multiparty = require('connect-multiparty');
 var expressValidator = require('express-validator');
 
 // Inicializa o módulo Express dentro da variável app
@@ -13,6 +14,8 @@ app.use(express.static('./app/public'));
 app.use(bodyParser.urlencoded({extended: true}));
 // Inclui o módulo express-validator na variável app
 app.use(expressValidator());
+// Inclui o móddulo connect-multiparty na variavel app
+app.use(multiparty());
 
 /*
     Inicializa o módulo Consign que importa automaticamente

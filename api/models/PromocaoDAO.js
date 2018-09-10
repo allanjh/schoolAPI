@@ -9,6 +9,7 @@ PromocaoDAO.prototype.getPromocoes = function(callback){
             "INNER JOIN produto_promocao ON produto_promocao.idpromocao = promocao.idpromocao " +
             "INNER JOIN produto ON produto_promocao.idproduto = produto.idproduto " +
             "WHERE promocao.data_fim_promocao >= NOW() " +
+            "AND promocao.data_inicio_promocao <= NOW() " +
             "ORDER BY promocao.data_fim_promocao ASC";
 
     this._connection.query(query, callback);
@@ -39,6 +40,10 @@ PromocaoDAO.prototype.getPromocoesDoSupermercado = function(idSupermercado, call
 
 PromocaoDAO.prototype.insertPromocao = function(novaPromocao, callback){
     this._connection.query('INSERT INTO promocao SET ? ', novaPromocao, callback);
+}
+
+PromocaoDAO.prototype.insertProdutoPromocao = function(produtos, callback){
+    this._connection.query('INSERT INTO produto_promocao (idproduto, idpromocao, preco) VALUES ? ', produtos, callback);
 }
 
 PromocaoDAO.prototype.updatePromocao = function(novaPromocao, callback){
