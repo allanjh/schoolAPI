@@ -1,0 +1,146 @@
+// Exporta a função que recupera o registro de um produto de acordo com o id
+module.exports.getProdutoPorId = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto ProdutoDAO e passa a conexão por parametro para ele
+    var produtos = new app.api.models.ProdutoDAO(connection);
+    // Recupera o id passado como parametro
+    var idProduto = req.params.id;
+
+    // Acessa o método de recuperar um Produto através do id, esperando o retorno de um possível
+    // erro ou resultado do select
+    produtos.getProdutoPorId(idProduto, function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            if (result == '') {
+                result = {error: "Produto não encontrado!"};
+                res.status(404).json(result);
+            } else {
+                res.json(result);
+            }
+        }
+    });
+}
+
+// Exporta a função que recupera o registro de um produto de acordo com o EAN
+module.exports.getProdutoPorEAN = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto ProdutoDAO e passa a conexão por parametro para ele
+    var produtos = new app.api.models.ProdutoDAO(connection);
+    // Recupera o EAN passado como parametro
+    var eanProduto = req.params.ean;
+
+    // Acessa o método de recuperar um Produto através do EAN, esperando o retorno de um possível
+    // erro ou resultado do select
+    produtos.getProdutoPorEAN(eanProduto, function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            if (result == '') {
+                result = {error: "Produto não encontrado!"};
+                res.status(404).json(result);
+            } else {
+                res.json(result);
+            }
+        }
+    });
+}
+
+// Exporta a função que recupera uma lista de produtos de acordo com a categoria
+module.exports.getProdutosPorCategoria = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto ProdutoDAO e passa a conexão por parametro para ele
+    var produtos = new app.api.models.ProdutoDAO(connection);
+    // Recupera o EAN passado como parametro
+    var categoriaProduto = req.params.id;
+
+    // Acessa o método de recuperar uma lista de produtos de acordo com o id da categoria, 
+    // esperando o retorno de um possível erro ou resultado do select
+    produtos.getProdutosPorCategoria(categoriaProduto, function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            if (result == '') {
+                result = {error: "Produto não encontrado!"};
+                res.status(404).json(result);
+            } else {
+                res.json(result);
+            }
+        }
+    });
+}
+
+// Exporta a função que recupera uma lista de produtos de acordo com a marca
+module.exports.getProdutosPorMarca = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto ProdutoDAO e passa a conexão por parametro para ele
+    var produtos = new app.api.models.ProdutoDAO(connection);
+    // Recupera o EAN passado como parametro
+    var marcaProduto = req.params.id;
+
+    // Acessa o método de recuperar uma lista de produtos de acordo com o id da categoria, 
+    // esperando o retorno de um possível erro ou resultado do select
+    produtos.getProdutosPorMarca(marcaProduto, function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            if (result == '') {
+                result = {error: "Produto não encontrado!"};
+                res.status(404).json(result);
+            } else {
+                res.json(result);
+            }
+        }
+    });
+}
+
+//Exporta a função que insere um novo produto no banco de dados
+module.exports.insertProduto = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto PromocaoDAO e passa a conexão por parametro para ele
+    var produtos = new app.api.models.ProdutoDAO(connection);
+
+    // Recupera os dados enviados via POST
+    var novoProduto = req.body;
+
+    // Verifica as informações passadas
+    req.assert('nome_produto', 'Nome do produto é obrigatório').notEmpty();
+    
+    if(novoProduto.marca_produto_idmarca_produto == ""){
+        novoProduto.marca_produto_idmarca_produto = "7";
+    }
+    if (novoProduto.categoria_produto_idcategoria_produto == "") {
+        novoProduto.categoria_produto_idcategoria_produto = "6";
+    }
+
+    // Faz a verificação e passa os resultados da mesma para a variável erros
+    var erros = req.validationErrors();
+
+    // Se houver erros 
+    if (erros) {
+        // responde a requisição retornando os erros que ocorreram
+        res.status(400).json(erros);
+        // para o fluxo do código
+        return;
+    }
+
+    // Acessa o método de inserir um novo Produto esperando o retorno de um possível
+    // erro ou resultado da inserção
+    produtos.insertProduto(novoProduto, function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            res.json(result);
+        }
+    });
+}
