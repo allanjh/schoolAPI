@@ -38,6 +38,9 @@ DataHelper.prototype.isDataMaiorQue = function(dataInicio, dataFim, msg) {
     }
 }
 
+DataHelper.prototype.getDataEmMilisegundos = function() {
+    return moment().unix();
+}
 
 module.exports = function(){
     return DataHelper;
