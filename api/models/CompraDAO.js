@@ -35,12 +35,16 @@ CompraDAO.prototype.updateTotalCompra = function(idCompra, callback){
     this._connection.query(query, idCompra, callback);
 }
 
-CompraDAO.prototype.updatePromocao = function(novaPromocao, callback){
-    this._connection.query('UPDATE compra SET ? WHERE idpromocao = ? ', novaPromocao, callback);
+CompraDAO.prototype.updateSupermercadoCompra = function(novoSupermercadoCompra, callback){
+    this._connection.query('UPDATE compra SET ? WHERE idcompra = ? ', novoSupermercadoCompra, callback);
 }
 
-CompraDAO.prototype.deletePromocao = function(idPromocao, callback){
-    this._connection.query('DELETE FROM compra WHERE idpromocao =  ? ', idPromocao, callback);
+CompraDAO.prototype.deleteProdutosCompra = function(idCompra, callback){
+    this._connection.query('DELETE FROM item_compra WHERE compra_idcompra =  ? ', idCompra, callback);
+}
+
+CompraDAO.prototype.deleteCompra = function(idCompra, callback){
+    this._connection.query('DELETE FROM compra WHERE idcompra =  ? ', idCompra, callback);
 }
 
 module.exports = function(){

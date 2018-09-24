@@ -93,13 +93,73 @@ module.exports.insertListaCompra = function (app, req, res) {
     });
 }
 
-// Exporta a função de atualizar uma lista de compras
+// Exporta a função de atualizar o supermercado de uma lista de compras
+module.exports.updateSupermercadoCompra = function (app, req, res) {
 
-// Exporta a função de atualizar uma lista de compras
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto CompraDAO e passa a conexão por parametro para ele
+    var compras = new app.api.models.CompraDAO(connection);
+    // Recupera o id da compra
+    var idCompra = req.params.id;
+    // Recupera o id do supermercado 
+    var novoSupermercadoCompra = req.body;
+
+    // Verifica as informações passadas
+    req.assert('supermercado_idsupermercado', 'id do supermercado é obrigatório').notEmpty();
+    req.assert('supermercado_idsupermercado', 'id do supermercado deve ser um número').isInt();
+
+    // Faz a verificação e passa os resultados da mesma para a variável erros
+    var erros = req.validationErrors();
+
+    // Se houver erros 
+    if (erros) {
+        // responde a requisição retornando os erros que ocorreram
+        res.status(400).json(erros);
+        // para o fluxo do código
+        return;
+    }
+
+    // Acessa o método de atualizar o supermercado da lista de compras esperando o retorno de um possível
+    // erro ou resultado
+    compras.updateSupermercadoCompra([novoSupermercadoCompra, idCompra], function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            res.json(result);
+        }
+    });
+}
 
 // Exporta a função de deletar uma lista de compras
+module.exports.deleteListaCompra = function (app, req, res) {
 
-// Exporta a função de reulizar uma lista de compras
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto CompraDAO e passa a conexão por parametro para ele
+    var compras = new app.api.models.CompraDAO(connection);
+
+    var idCompra = req.params.id;
+
+    // Acessa o método de deletar uma lista de compras esperando o retorno
+    // de um possível erro ou resultado
+    compras.deleteProdutosCompra(idCompra, function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            // atualiza o total da lista de compras
+            compras.deleteCompra(idCompra, function (error, result) {
+                if (error) {
+                    res.status(400).json(error);
+                } else {
+                    res.json(result);
+                }
+            });
+        }
+    });
+}
+
+// Exporta a função de reutilizar uma lista de compras
 
 // Exporta a função de inserir um produto em uma lista de compras
 module.exports.insertProdutoEmListaCompra = function (app, req, res) {

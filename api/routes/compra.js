@@ -23,11 +23,11 @@ module.exports = function (app) {
 
     //Rota para atualizar o registro de uma compra pelo id
     app.put('/api/compra/:id', function (req, res) {
-        app.api.controllers.compra.updateCompra(app, req, res);
+        app.api.controllers.compra.updateSupermercadoCompra(app, req, res);
     });
 
     //Rota para deletar o registro de uma compra pelo id
     app.delete('/api/compra/:id', function (req, res) {
-        app.api.controllers.compra.deleteCompra(app, req, res);
+        app.api.controllers.compra.deleteListaCompra(app, req, res);
     });
 }
