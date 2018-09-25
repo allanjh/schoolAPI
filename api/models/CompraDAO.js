@@ -11,7 +11,11 @@ CompraDAO.prototype.getCompraPorId = function(idConsumidor, callback){
 
 CompraDAO.prototype.getProdutosCompraPorId = function(idCompra, callback){
 
-    query = "SELECT * FROM buy.item_compra WHERE buy.item_compra.compra_idcompra = ? ";
+    query = "SELECT * " + 
+            "FROM buy.compra " +
+            "INNER JOIN buy.item_compra ON buy.compra.idcompra = buy.item_compra.compra_idcompra "+
+            "INNER JOIN buy.produto ON buy.item_compra.produto_idproduto = buy.produto.idproduto " +
+            "WHERE buy.compra.idcompra = ? ";
 
     this._connection.query(query, idCompra, callback);
 }
@@ -22,6 +26,15 @@ CompraDAO.prototype.insertListaCompra = function(novaLista, callback){
 
 CompraDAO.prototype.insertProdutoEmListaCompra = function(novoProduto, callback){
     this._connection.query('INSERT INTO item_compra SET ? ', novoProduto, callback);
+}
+
+CompraDAO.prototype.insertProdutosEmListaCompra = function(novosProdutos, callback){
+    
+    var query = 'INSERT INTO item_compra ' +
+                '(produto_idproduto, compra_idcompra, preco_produto_compra, quantidade_produto_compra) ' +
+                'VALUES ? ';
+    
+    this._connection.query(query, novosProdutos, callback);
 }
 
 CompraDAO.prototype.updateTotalCompra = function(idCompra, callback){
@@ -45,6 +58,14 @@ CompraDAO.prototype.deleteProdutosCompra = function(idCompra, callback){
 
 CompraDAO.prototype.deleteCompra = function(idCompra, callback){
     this._connection.query('DELETE FROM compra WHERE idcompra =  ? ', idCompra, callback);
+}
+
+CompraDAO.prototype.updateProdutoEmListaCompra = function(novoProdutoCompra, callback){
+    this._connection.query('UPDATE item_compra SET ? WHERE compra_idcompra = ? AND produto_idproduto = ?', novoProdutoCompra, callback);
+}
+
+CompraDAO.prototype.deleteProdutoEmListaCompra = function(item_compra, callback){
+    this._connection.query('DELETE FROM item_compra WHERE compra_idcompra =  ? AND produto_idproduto = ? ', item_compra, callback);
 }
 
 module.exports = function(){

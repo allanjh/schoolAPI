@@ -15,7 +15,7 @@ module.exports.getCompraPorId = function (app, req, res) {
             res.status(400).json(error);
         } else {
             if (result == '') {
-                result = {error: "Nenhuma Lista de compras encontrada!"};
+                result = { error: "Nenhuma Lista de compras encontrada!" };
                 res.status(404).json(result);
             } else {
                 res.json(result);
@@ -24,7 +24,7 @@ module.exports.getCompraPorId = function (app, req, res) {
     });
 }
 
-// Exporta a função de listar os produtos da lista de compras a parti do id da mesma
+// Exporta a função de listar os produtos da lista de compras a partir do id da mesma
 module.exports.getProdutosCompraPorId = function (app, req, res) {
 
     // Estabelece a conexão com o banco de dados
@@ -41,7 +41,7 @@ module.exports.getProdutosCompraPorId = function (app, req, res) {
             res.status(400).json(error);
         } else {
             if (result == '') {
-                result = {error: "Nenhuma Lista de compras encontrada!"};
+                result = { error: "Nenhuma Lista de compras encontrada!" };
                 res.status(404).json(result);
             } else {
                 res.json(result);
@@ -159,8 +159,6 @@ module.exports.deleteListaCompra = function (app, req, res) {
     });
 }
 
-// Exporta a função de reutilizar uma lista de compras
-
 // Exporta a função de inserir um produto em uma lista de compras
 module.exports.insertProdutoEmListaCompra = function (app, req, res) {
 
@@ -215,5 +213,155 @@ module.exports.insertProdutoEmListaCompra = function (app, req, res) {
 }
 
 // Exporta a função de atualizar um produto em uma lista de compras
+module.exports.updateProdutoEmListaCompra = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto CompraDAO e passa a conexão por parametro para ele
+    var compras = new app.api.models.CompraDAO(connection);
+
+    var idCompra = req.params.idcompra;
+    var idProduto = req.params.idproduto;
+    var novoProduto = req.body;
+
+    // Verifica as informações passadas
+    req.assert('preco_produto_compra', 'preço do produto é obrigatório').notEmpty();
+    req.assert('preco_produto_compra', 'preço do produto deve ser um número').isFloat();
+    req.assert('quantidade_produto_compra', 'quantidade do produto é obrigatório').notEmpty();
+    req.assert('quantidade_produto_compra', 'quantidade do produto deve ser um número').isInt();
+
+    // Faz a verificação e passa os resultados da mesma para a variável erros
+    var erros = req.validationErrors();
+
+    // Se houver erros 
+    if (erros) {
+        // responde a requisição retornando os erros que ocorreram
+        res.status(400).json(erros);
+        // para o fluxo do código
+        return;
+    }
+
+    // Acessa o método de inserir um novo produto na lista de compras esperando o retorno
+    // de um possível erro ou resultado
+    compras.updateProdutoEmListaCompra([novoProduto, idCompra, idProduto], function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            // atualiza o total da lista de compras
+            compras.updateTotalCompra([idCompra, idCompra], function (error, result) {
+                if (error) {
+                    res.status(400).json(error);
+                } else {
+                    res.json(result);
+                }
+            });
+        }
+    });
+}
 
 // Exporta a função de deletar um produto em uma lista de compras
+module.exports.deleteProdutoEmListaCompra = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto CompraDAO e passa a conexão por parametro para ele
+    var compras = new app.api.models.CompraDAO(connection);
+
+    var idCompra = req.params.idcompra;
+    var idProduto = req.params.idproduto;
+
+    // Acessa o método de inserir um novo produto na lista de compras esperando o retorno
+    // de um possível erro ou resultado
+    compras.deleteProdutoEmListaCompra([idCompra, idProduto], function (error, result) {
+        if (error) {
+            res.status(400).json(error);
+        } else {
+            // atualiza o total da lista de compras
+            compras.updateTotalCompra([idCompra, idCompra], function (error, result) {
+                if (error) {
+                    res.status(400).json(error);
+                } else {
+                    res.json(result);
+                }
+            });
+        }
+    });
+}
+
+// Exporta a função de reutilizar uma lista de compras
+module.exports.reuseListaCompra = function (app, req, res) {
+
+    // Estabelece a conexão com o banco de dados
+    var connection = app.config.dbConnection();
+    // Instancia o objeto CompraDAO e passa a conexão por parametro para ele
+    var compras = new app.api.models.CompraDAO(connection);
+    //Recupera o id da lista que será utilizada como base para a nova lista
+    var idListaCompraBase = req.params.id;
+
+    //Recupera a lista utilizada como base
+    compras.getProdutosCompraPorId(idListaCompraBase, function (error, listaDeProdutos) {
+        if (error) {
+            //Caso aconteça algum erro o mesmo é retornado
+            res.status(400).json(error);
+        } else {
+            //monta o objeto utlizado para criar a nova lista
+            var novaLista = {
+                "consumidor_idconsumidor": listaDeProdutos[0].consumidor_idconsumidor,
+                "supermercado_idsupermercado": listaDeProdutos[0].supermercado_idsupermercado,
+                "total_compra": 0.0
+            };
+
+            //Cria a nova lista
+            compras.insertListaCompra(novaLista, function (error, result) {
+                if (error) {
+                    res.status(400).json(error);
+                } else {
+                    //Recupera o id da compra criada
+                    var idCompraCriada = result.insertId;
+
+                    var novosProdutos = [];
+
+                    //monta array de produtos
+                    for (let i = 0; i < listaDeProdutos.length; i++) {
+                        novosProdutos.push([
+                            listaDeProdutos[i].produto_idproduto,
+                            idCompraCriada,
+                            listaDeProdutos[i].preco_produto_compra,
+                            listaDeProdutos[i].quantidade_produto_compra,
+                        ]);
+
+                    }
+
+                    //Insere os novos produtos na lista recem criada
+                    compras.insertProdutosEmListaCompra([novosProdutos], function (error, result) {
+                        if (error) {
+                            res.status(400).json(error);
+                        } else {
+                            // atualiza o total da lista de compras
+                            compras.updateTotalCompra([idCompraCriada, idCompraCriada], function (error, result) {
+                                if (error) {
+                                    res.status(400).json(error);
+                                } else {
+                                    compras.getProdutosCompraPorId(idCompraCriada, function (error, result) {
+                                        if (error) {
+                                            res.status(400).json(error);
+                                        } else {
+                                            if (result == '') {
+                                                result = { error: "Nenhuma Lista de compras encontrada!" };
+                                                res.status(404).json(result);
+                                            } else {
+                                                res.json(result);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+
+        }
+    });
+}
