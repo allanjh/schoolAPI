@@ -348,6 +348,8 @@ module.exports.deleteProduto = function (app, req, res) {
 // Exporta a função que recupera uma imagem a partir do nome
 module.exports.getImage = function (app, req, res) {
 
+    // Importa a biblioteca file system do NodeJS
+    var fs = require('fs');
     // Recupera o nome da imagem
     var imagem = req.params.nomeImagem;
     // Recupera a extensão da imagem
@@ -358,7 +360,7 @@ module.exports.getImage = function (app, req, res) {
             res.status(400).json(erro);
             return;
         } else {
-            res.writeHead(200, {'content-type':'image/'+extImagem});
+            res.writeHead(200, {'content-type':'image/'+extImagem[1]});
             res.end(conteudo);
         }
     });

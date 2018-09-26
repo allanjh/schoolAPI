@@ -39,7 +39,7 @@ module.exports = function (app) {
     });
 
     //Rota para recuperar uma imagem pelo nome dela
-    app.delete('/api/imagem/:nomeImagem', function (req, res) {
+    app.get('/api/imagem/:nomeImagem', function (req, res) {
         app.api.controllers.produto.getImage(app, req, res);
     });
 }
