@@ -3,11 +3,25 @@ function ProdutoDAO(connection){
 }
 
 ProdutoDAO.prototype.getProdutoPorId = function(idProduto, callback){
-    this._connection.query('SELECT * FROM produto WHERE idproduto = ? ', idProduto, callback);
+
+    var query = 'SELECT * FROM buy.produto ' +
+                'LEFT JOIN buy.precos_itens_compra ON buy.produto.idproduto = buy.precos_itens_compra.produto_idproduto ' +
+                'WHERE buy.produto.idproduto = ? ' +
+                'ORDER BY data_compra DESC ' +
+                'LIMIT 1';
+
+    this._connection.query(query, idProduto, callback);
 }
 
 ProdutoDAO.prototype.getProdutoPorEAN = function(eanProduto, callback){
-    this._connection.query('SELECT * FROM produto WHERE ean_produto = ? ', eanProduto, callback);
+
+    var query = 'SELECT * FROM buy.produto ' +
+                'LEFT JOIN buy.precos_itens_compra ON buy.produto.idproduto = buy.precos_itens_compra.produto_idproduto ' +
+                'WHERE buy.produto.ean_produto = ? ' +
+                'ORDER BY data_compra DESC ' +
+                'LIMIT 1';
+
+    this._connection.query(query, eanProduto, callback);
 }
 
 ProdutoDAO.prototype.getProdutosPorCategoria = function(categoriaProduto, callback){
